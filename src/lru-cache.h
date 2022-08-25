@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 
 using namespace std;
 
@@ -24,6 +25,8 @@ private:
     
     // we store a pointer to the linked list node so we can control it's lifecycle when they are deleted and evicted otherwise memory leaky
     map<int, LinkedList*> valToNode;
+
+    mutex mu;
 
 public:
     LRUCache(int cap);

@@ -1,17 +1,33 @@
 #include <iostream>
-#include "../headers/lru-cache.h"
+#include "./lru-cache.h"
+#include <thread>
+#include <memory>
 
-// g++ main.cpp lru-cache.cpp -o ../main -lstdc++
-int main() {
-  LRUCache *lruc = new LRUCache(2);
+using namespace std;
 
+void testThread(LRUCache* lruc) {
   lruc->put(2, 5);
-  cout << lruc->get(2) << endl;
+  lruc->get(2);
   lruc->put(2, 2);
-  cout << lruc->get(2) << endl;
+  lruc->get(2);
   lruc->put(4, 3);
-  cout << lruc->get(2) << endl;
-  cout << lruc->get(4) << endl;
+  lruc->get(2);
+  lruc->get(4);
+  lruc->get(69);
+}
 
+// g++ main.cpp lru-cache.cpp -o ../cachemoney -lstdc++ -std=c++11
+int main() {
+  LRUCache* lruc = new LRUCache(2);
+  thread th2(testThread, lruc);
+
+  thread th1(testThread, lruc);
+  
+
+  cout << "Hello from main thread" << endl;
+
+  th1.join();
+  th2.join();
+  
   delete lruc;
 }

@@ -1,6 +1,7 @@
 #include <map>
-#include "../headers/lru-cache.h"
+#include "./lru-cache.h"
 #include <iostream>
+#include <mutex>
 
 using namespace std;
 
@@ -35,10 +36,14 @@ LRUCache::~LRUCache()
 
 int LRUCache::get(int key)
 {
+  mu.lock();
+  cout << "Get Cmd " << key << endl;
   // cout << "get " << key << endl;
   if (valToNode.find(key) == valToNode.end())
   {
     // cout << "key not in map" << endl;
+    mu.unlock();
+    cout << "No key found" << endl;
     return -1;
   }
 
@@ -62,13 +67,16 @@ int LRUCache::get(int key)
   nodeForKey->prev = oneBeforeRightMost;
   nodeForKey->next = dummyTail;
   dummyTail->prev = nodeForKey;
-
-  return nodeForKey->val;
+  int val = nodeForKey->val;
+  cout << "Val for " << key << ": " << val << endl;
+  mu.unlock();
+  return val;
 }
 
 void LRUCache::put(int key, int value)
 {
-
+  mu.lock();
+  cout << "Put Cmd " << key << ": " << value << endl;
   if (valToNode.find(key) != valToNode.end())
   {
     // duplicate exists so remove from the map
@@ -113,4 +121,6 @@ void LRUCache::put(int key, int value)
   valToNode.insert(make_pair(key, nodeToBeAdded));
 
   size++;
+
+  mu.unlock();
 }
