@@ -38,10 +38,8 @@ int LRUCache::get(int key)
 {
   mu.lock();
   cout << "Get Cmd " << key << endl;
-  // cout << "get " << key << endl;
   if (valToNode.find(key) == valToNode.end())
   {
-    // cout << "key not in map" << endl;
     mu.unlock();
     cout << "No key found" << endl;
     return -1;
@@ -50,7 +48,6 @@ int LRUCache::get(int key)
   LinkedList *nodeForKey = valToNode.at(key);
 
   // move the key's node to the right most part of the linkedlist
-
   // remove it from it's current spot
   LinkedList *olderNodeForKeyPrev = nodeForKey->prev;
   LinkedList *olderNodeForKeyNext = nodeForKey->next;

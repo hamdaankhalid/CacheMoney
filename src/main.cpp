@@ -19,10 +19,9 @@ void testThread(LRUCache* lruc) {
 // g++ main.cpp lru-cache.cpp -o ../cachemoney -lstdc++ -std=c++11
 int main() {
   LRUCache* lruc = new LRUCache(2);
-  thread th2(testThread, lruc);
-
-  thread th1(testThread, lruc);
   
+  thread th2(testThread, lruc);
+  thread th1(testThread, lruc);
 
   cout << "Hello from main thread" << endl;
 
