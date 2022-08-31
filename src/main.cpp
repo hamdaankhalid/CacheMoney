@@ -11,6 +11,20 @@
 
 #define SERVER_PORT 8080
 
+// void testThread(std::unique_ptr<LRUCache> &lruc) {
+//   lruc->put(2, 5);
+//   lruc->get(2);
+//   lruc->put(2, 2);
+//   lruc->get(2);
+//   lruc->get(2);
+//   lruc->put(4, 3);
+//   lruc->get(2);
+//   lruc->get(4);
+//   lruc->get(2);
+//   lruc->get(4);
+//   lruc->get(69);
+// }
+
 int main() {
   int opt = 1;
   int socketFd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -48,12 +62,17 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  LRUCache* lruc = new LRUCache(2);
+  std::unique_ptr<LRUCache> lruc = std::make_unique<LRUCache>(2);
+
+  // testThread(lruc);
   
   auto addrlen = sizeof(cliaddr);
   int connection;
+  
+  std::cout << "Server is starting on port " << SERVER_PORT << std::endl;
+  
   while (true) {
-    connection = accept(listenDescriptor,(struct sockaddr*) &cliaddr, (socklen_t*)&addrlen);
+    connection = accept(socketFd, (struct sockaddr*) &cliaddr, (socklen_t*)&addrlen);
     if (connection < 0) {
       perror("connection accept"); 
       exit(EXIT_FAILURE);
@@ -62,13 +81,14 @@ int main() {
     // Read from the connection
     char buffer[100];
     read(connection, buffer, 100);
-    cout << "The message was: " << buffer << endl;
+    std::cout << "The message was: " << buffer << std::endl;
 
+    // message can be put or get
     close(connection);
   }
   
   close(listenDescriptor);
   shutdown(socketFd, SHUT_RDWR);
   
-  delete lruc;
+  return 0;
 }

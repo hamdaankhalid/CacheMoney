@@ -3,54 +3,42 @@
 #include <iostream>
 #include <mutex>
 
-using namespace std;
 
 LinkedList::LinkedList(int k, int v)
 {
   key = k;
   val = v;
-  prev = NULL;
-  next = NULL;
+  prev = nullptr;
+  next = nullptr;
 }
 
 LRUCache::LRUCache(int cap)
 {
   size = 0;
   capacity = cap;
-  dummyHead = new LinkedList(-9909, -9909);
-  dummyTail = new LinkedList(9909, 9909);
+  dummyHead = std::make_shared<LinkedList>(-9909, -9909);
+  dummyTail = std::make_shared<LinkedList>(9909, 9909);
   dummyHead->next = dummyTail;
   dummyTail->prev = dummyHead;
-}
-
-LRUCache::~LRUCache()
-{
-  for (auto const& entry : valToNode) {
-    // cout << entry.first << " , " << entry.second->key << endl;
-    delete entry.second;
-  }
-
-  delete dummyHead;
-  delete dummyTail;
 }
 
 int LRUCache::get(int key)
 {
   mu.lock();
-  cout << "Get Cmd " << key << endl;
+  std::cout << "Get Cmd " << key << std::endl;
   if (valToNode.find(key) == valToNode.end())
   {
     mu.unlock();
-    cout << "No key found" << endl;
+    std::cout << "No key found" << std::endl;
     return -1;
   }
 
-  LinkedList *nodeForKey = valToNode.at(key);
+  std::shared_ptr<LinkedList>nodeForKey = valToNode.at(key);
 
   // move the key's node to the right most part of the linkedlist
   // remove it from it's current spot
-  LinkedList *olderNodeForKeyPrev = nodeForKey->prev;
-  LinkedList *olderNodeForKeyNext = nodeForKey->next;
+  std::shared_ptr<LinkedList> olderNodeForKeyPrev = nodeForKey->prev;
+  std::shared_ptr<LinkedList> olderNodeForKeyNext = nodeForKey->next;
 
   // connect the gap it leaves when removed from current spot
   olderNodeForKeyPrev->next = olderNodeForKeyNext;
@@ -58,14 +46,14 @@ int LRUCache::get(int key)
 
   // add to the front most part between dummyTail and actualy one before dummy tail
 
-  LinkedList *oneBeforeRightMost = dummyTail->prev;
+  std::shared_ptr<LinkedList> oneBeforeRightMost = dummyTail->prev;
 
   oneBeforeRightMost->next = nodeForKey;
   nodeForKey->prev = oneBeforeRightMost;
   nodeForKey->next = dummyTail;
   dummyTail->prev = nodeForKey;
   int val = nodeForKey->val;
-  cout << "Val for " << key << ": " << val << endl;
+  std::cout << "Val for " << key << ": " << val << std::endl;
   mu.unlock();
   return val;
 }
@@ -73,41 +61,38 @@ int LRUCache::get(int key)
 void LRUCache::put(int key, int value)
 {
   mu.lock();
-  cout << "Put Cmd " << key << ": " << value << endl;
+  std::cout << "Put Cmd " << key << ": " << value << std::endl;
   if (valToNode.find(key) != valToNode.end())
   {
     // duplicate exists so remove from the map
-    LinkedList *nodeForKey = valToNode.at(key);
+    std::shared_ptr<LinkedList> nodeForKey = valToNode.at(key);
 
-    LinkedList *leftOfDuplicate = nodeForKey->prev;
-    LinkedList *rightOfDuplicate = nodeForKey->next;
+    std::shared_ptr<LinkedList> leftOfDuplicate = nodeForKey->prev;
+    std::shared_ptr<LinkedList> rightOfDuplicate = nodeForKey->next;
     leftOfDuplicate->next = rightOfDuplicate;
     rightOfDuplicate->prev = leftOfDuplicate;
 
     valToNode.erase(key);
-    delete nodeForKey;
-
     size--;
   }
 
-  LinkedList *nodeToBeAdded = new LinkedList(key, value);
+  std::shared_ptr<LinkedList> nodeToBeAdded = std::make_shared<LinkedList>(key, value);
   if (size >= capacity)
   {
     // evict the left most
-    LinkedList *leftMost = dummyHead->next;
+    std::shared_ptr<LinkedList>leftMost = dummyHead->next;
 
-    LinkedList *oneAfterLeftMost = leftMost->next;
+    std::shared_ptr<LinkedList>oneAfterLeftMost = leftMost->next;
 
     dummyHead->next = oneAfterLeftMost;
     oneAfterLeftMost->prev = dummyHead;
     valToNode.erase(leftMost->key);
-    delete leftMost;
 
     size--;
   }
 
   // always add node to the right most part of the list
-  LinkedList *oneBeforeRightMost = dummyTail->prev;
+  std::shared_ptr<LinkedList> oneBeforeRightMost = dummyTail->prev;
   nodeToBeAdded->next = dummyTail;
   nodeToBeAdded->prev = oneBeforeRightMost;
 

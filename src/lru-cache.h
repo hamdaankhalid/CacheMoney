@@ -2,15 +2,14 @@
 
 #include <map>
 #include <mutex>
-
-using namespace std;
+#include <memory>
 
 class LinkedList {
 public:
     int key;
     int val;
-    LinkedList* prev;
-    LinkedList* next;
+    std::shared_ptr<LinkedList> prev;
+    std::shared_ptr<LinkedList> next;
 
     LinkedList(int k, int v);
 };
@@ -20,18 +19,16 @@ private:
     int capacity;
     int size;
     
-    LinkedList* dummyHead;
-    LinkedList* dummyTail;
+    std::shared_ptr<LinkedList> dummyHead;
+    std::shared_ptr<LinkedList>dummyTail;
     
     // we store a pointer to the linked list node so we can control it's lifecycle when they are deleted and evicted otherwise memory leaky
-    map<int, LinkedList*> valToNode;
+    std::map<int, std::shared_ptr<LinkedList> > valToNode;
 
-    mutex mu;
+    std::mutex mu;
 
 public:
     LRUCache(int cap);
-
-    ~LRUCache();
     
     int get(int key);
     
