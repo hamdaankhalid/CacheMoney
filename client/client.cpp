@@ -19,23 +19,19 @@
  * */
 int main() {
   std::cout<<"Client booting up!"<<std::endl;
-  
-  Request putRequest;
-  putRequest.set_instruction("put");
-  putRequest.set_key(17);
-  putRequest.set_val(38);
-
-  Request getRequest;
-  getRequest.set_instruction("get");
-  getRequest.set_key(17);
-  getRequest.set_val(38);
-  Request reqs[2] = {putRequest, getRequest};
 
   int sock = 0, valread, client_fd;
   struct sockaddr_in serv_addr;
 
-  for (int i = 0; i < 50; i++) {
-    Request req = reqs[i % 2];
+  bool isPut = true;
+  for (int i = 0; i < 500; i++) {
+    Request req;
+    std::string instruction = isPut ? "put" : "get";
+    isPut = !isPut;
+    req.set_instruction(instruction);
+    req.set_key(1+ (rand() % 100));
+    req.set_val(1+ (rand() % 100));
+
     // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
     int siz = req.ByteSize() + 4;
     // this is the packet of data that will be send across the network

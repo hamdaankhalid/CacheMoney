@@ -6,7 +6,7 @@ server:
 
 
 client:
-	$(CXX) ./auto-generated/proto/cache.pb.cc  ./client/client.cpp -o cachemoneyclient -lstdc++ -std=$(VERSION) -Wall -L /usr/local -L/usr/lib -lprotobuf
+	$(CXX) ./auto-generated/proto/cache.pb.cc  ./client/client.cpp -o cachemoneyclient -lstdc++ -std=$(VERSION) -Wall -L/usr/lib -lprotobuf
 
 
 clean:
