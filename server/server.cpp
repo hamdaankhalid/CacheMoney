@@ -18,7 +18,6 @@ google::protobuf::uint32 readHdr(char *buf)
   google::protobuf::io::ArrayInputStream ais(buf,4);
   google::protobuf::io::CodedInputStream coded_input(&ais);
   coded_input.ReadVarint32(&size);//Decode the HDR and get the size
-  std::cout<<"size of payload is "<<size<<std::endl;
   return size;
 }
 
@@ -103,14 +102,18 @@ int main() {
   
   while (true) {
     char buffer[4];
-    memset(&buffer, '\0', 4);
+    memset(buffer, '\0', 4);
 
     connection = accept(socketFd, (struct sockaddr*) &cliaddr, (socklen_t*)&addrlen);
     if (connection < 0) {
       perror("connection accept"); 
       exit(EXIT_FAILURE);
     }
-    handleBody(connection, readHdr(&buffer), lruc);
+
+    google::protobuf::uint32 size;
+    recv(connection, buffer, 4, MSG_PEEK);
+    size = readHdr(buffer);
+    handleBody(connection, size, lruc);
   
     // message can be put or get
     close(connection);

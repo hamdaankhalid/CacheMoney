@@ -23,7 +23,7 @@ int main() {
   putRequest.set_val(38);
 
   Request getRequest;
-  getRequest.set_instruction("put");
+  getRequest.set_instruction("get");
   getRequest.set_key(17);
   getRequest.set_val(38);
   Request reqs[2] = {putRequest, getRequest};
@@ -33,8 +33,11 @@ int main() {
 
   for (int i = 0; i < 2; i++) {
     Request req = reqs[i];
-    int siz = req.ByteSize() + 4; // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
-    char *packet = new char[siz]; // this is the packet of data that weill be send across the network
+
+    // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
+    int siz = req.ByteSize() + 4;
+    // this is the packet of data that will be send across the network
+    char *packet = new char[siz];
     google::protobuf::io::ArrayOutputStream aos(packet, siz);
     google::protobuf::io::CodedOutputStream *codedOutput = new google::protobuf::io::CodedOutputStream(&aos);
     codedOutput->WriteVarint32(req.ByteSize());
@@ -60,8 +63,10 @@ int main() {
 
     // valread = read(sock, buffer, 1024);
     delete packet;
+    delete codedOutput;
     // closing the connected socket
     close(client_fd);
+    sleep(2);
   }
 
   return 0;
