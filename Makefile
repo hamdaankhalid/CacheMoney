@@ -10,4 +10,5 @@ client:
 
 
 clean:
-	rm cachemoney
+	rm cachemoneyclient
+	rm cachemoneyserver

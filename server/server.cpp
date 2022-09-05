@@ -64,17 +64,34 @@ int main() {
       exit(EXIT_FAILURE);
     }
 
-    Request request;
-    char* buffer[request.ByteSizeLong()];
+    char sizebuffer[4];
+
+    Request req;
+    memset(sizebuffer, '\0', 4);
+
+    recv(connection, sizebuffer, 4, MSG_PEEK);
+    google::protobuf::uint32 size;
+    google::protobuf::io::ArrayInputStream ais(sizebuffer, 4);
+    google::protobuf::io::CodedInputStream coded_input(&ais);
+    coded_input.ReadVarint32(&size);//Decode the HDR and get the size
+
+    char buffer [size+4];
+    int byteCount = recv(connection, (void *)buffer, 4+size, MSG_WAITALL);
+    google::protobuf::io::ArrayInputStream ais2(buffer, size+4);
+    google::protobuf::io::CodedInputStream coded_input2(&ais2);
+    coded_input.ReadVarint32(&size);
+
+    google::protobuf::io::CodedInputStream::Limit msgLimit = coded_input.PushLimit(size);
+    req.ParseFromCodedStream(&coded_input2);
+    coded_input.PopLimit(msgLimit);
+    std::cout<<"Message is "<<req.DebugString();
     
-    read(connection, &buffer, request.ByteSizeLong());
-    request.Desrializebuffer.de;
     try {
-      if (request.instruction() == "get") {
-        lruc->get(request.key());
+      if (req.instruction() == "get") {
+        lruc->get(req.key());
         // TODO: send response
       } else {
-        lruc->put(request.key(), request.val());
+        lruc->put(req.key(), req.val());
         // TODO: send respone
       }
     }

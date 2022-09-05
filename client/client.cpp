@@ -5,7 +5,12 @@
 #include <unistd.h>
 #include <netinet/in.h> // For sockaddr_in
 #include <arpa/inet.h>
-
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/message.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #define PORT 8080
 
@@ -28,10 +33,12 @@ int main() {
 
   for (int i = 0; i < 2; i++) {
     Request req = reqs[i];
-    int reqSize = req.ByteSize();
-    // we will load the serialized data into this buffer then send it
-    char buffer[reqSize + 4];
-    req.SerializeToArray(&buffer, reqSize);
+    int siz = req.ByteSize() + 4; // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
+    char *packet = new char[siz]; // this is the packet of data that weill be send across the network
+    google::protobuf::io::ArrayOutputStream aos(packet, siz);
+    google::protobuf::io::CodedOutputStream *codedOutput = new google::protobuf::io::CodedOutputStream(&aos);
+    codedOutput->WriteVarint32(req.ByteSize());
+    req.SerializeToCodedStream(codedOutput);
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
       perror("socket creation"); 
@@ -48,7 +55,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    send(sock, buffer, reqSize, 0);
+    send(sock, (void *) packet, siz, 0);
     printf("Message sent\n");
 
     // valread = read(sock, buffer, 1024);
