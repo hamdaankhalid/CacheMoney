@@ -31,9 +31,8 @@ int main() {
   int sock = 0, valread, client_fd;
   struct sockaddr_in serv_addr;
 
-  for (int i = 0; i < 2; i++) {
-    Request req = reqs[i];
-
+  for (int i = 0; i < 50; i++) {
+    Request req = reqs[i % 2];
     // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
     int siz = req.ByteSize() + 4;
     // this is the packet of data that will be send across the network
@@ -62,11 +61,11 @@ int main() {
     printf("Message sent\n");
 
     // valread = read(sock, buffer, 1024);
-    delete packet;
+    delete[] packet;
     delete codedOutput;
     // closing the connected socket
     close(client_fd);
-    sleep(2);
+    // sleep(2);
   }
 
   return 0;

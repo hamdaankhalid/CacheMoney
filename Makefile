@@ -1,5 +1,5 @@
 CXX = g++
-VERSION = c++11
+VERSION = c++14
 
 server:
 	$(CXX) ./auto-generated/proto/cache.pb.cc  ./lru-cache/lru-cache.cpp ./server/server.cpp -o cachemoneyserver -std=$(VERSION) -Wall -lstdc++ -L/usr/lib -lprotobuf
