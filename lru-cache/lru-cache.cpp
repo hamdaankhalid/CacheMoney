@@ -24,11 +24,10 @@ LRUCache::LRUCache(int cap)
 
 int LRUCache::get(int key)
 {
-  mu.lock();
+  std::lock_guard<std::mutex> lck (mu);
   std::cout << "Get Cmd " << key << std::endl;
   if (valToNode.find(key) == valToNode.end())
   {
-    mu.unlock();
     std::cout << "No key found" << std::endl;
     return -1;
   }
@@ -54,13 +53,12 @@ int LRUCache::get(int key)
   dummyTail->prev = nodeForKey;
   int val = nodeForKey->val;
   std::cout << "Val for " << key << ": " << val << std::endl;
-  mu.unlock();
   return val;
 }
 
 void LRUCache::put(int key, int value)
 {
-  mu.lock();
+  std::lock_guard<std::mutex> lck (mu);
   std::cout << "Put Cmd " << key << ": " << value << std::endl;
   if (valToNode.find(key) != valToNode.end())
   {
@@ -103,6 +101,4 @@ void LRUCache::put(int key, int value)
   valToNode.insert(make_pair(key, nodeToBeAdded));
 
   size++;
-
-  mu.unlock();
 }

@@ -1,0 +1,11 @@
+syntax="proto3";
+
+message Request {
+  string instruction = 1;
+  int32 key = 2;
+  int32 val = 3;
+}
+
+message Response {
+  int32 val = 1;
+}

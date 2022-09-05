@@ -7,23 +7,11 @@
 #include <cstdlib> // For exit() and EXIT_FAILURE
 #include <unistd.h> // For read
 
-#include "./lru-cache.h"
+#include "../lru-cache/lru-cache.h"
+#include "../auto-generated/proto/cache.pb.h"
 
 #define SERVER_PORT 8080
 
-// void testThread(std::unique_ptr<LRUCache> &lruc) {
-//   lruc->put(2, 5);
-//   lruc->get(2);
-//   lruc->put(2, 2);
-//   lruc->get(2);
-//   lruc->get(2);
-//   lruc->put(4, 3);
-//   lruc->get(2);
-//   lruc->get(4);
-//   lruc->get(2);
-//   lruc->get(4);
-//   lruc->get(69);
-// }
 
 int main() {
   int opt = 1;
@@ -62,13 +50,11 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  std::unique_ptr<LRUCache> lruc = std::make_unique<LRUCache>(2);
+  std::unique_ptr<LRUCache> lruc (new LRUCache(100));
 
   // testThread(lruc);
-  
   auto addrlen = sizeof(cliaddr);
   int connection;
-  
   std::cout << "Server is starting on port " << SERVER_PORT << std::endl;
   
   while (true) {
@@ -78,15 +64,28 @@ int main() {
       exit(EXIT_FAILURE);
     }
 
-    // Read from the connection
-    char buffer[100];
-    read(connection, buffer, 100);
-    std::cout << "The message was: " << buffer << std::endl;
+    Request request;
+    char* buffer[request.ByteSizeLong()];
+    
+    read(connection, &buffer, request.ByteSizeLong());
+    request.Desrializebuffer.de;
+    try {
+      if (request.instruction() == "get") {
+        lruc->get(request.key());
+        // TODO: send response
+      } else {
+        lruc->put(request.key(), request.val());
+        // TODO: send respone
+      }
+    }
+    catch(const std::exception& e) {
+      std::cerr << e.what() << '\n';
+    }
 
     // message can be put or get
     close(connection);
   }
-  
+
   close(listenDescriptor);
   shutdown(socketFd, SHUT_RDWR);
   
