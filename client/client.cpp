@@ -55,11 +55,11 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    send(sock, (void *) packet, siz, 0);
+    send(sock, packet, siz, 0);
     printf("Message sent\n");
 
     // valread = read(sock, buffer, 1024);
-
+    delete packet;
     // closing the connected socket
     close(client_fd);
   }
