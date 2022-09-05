@@ -14,6 +14,9 @@
 
 #define PORT 8080
 
+/**
+ * All we do this for is spamming the server with back to back requests
+ * */
 int main() {
   std::cout<<"Client booting up!"<<std::endl;
   
@@ -36,11 +39,11 @@ int main() {
     // add 4 because we are going to add the size and an int is 4 bytes teeeheee!
     int siz = req.ByteSize() + 4;
     // this is the packet of data that will be send across the network
-    char *packet = new char[siz];
+    char *packet[siz];
     google::protobuf::io::ArrayOutputStream aos(packet, siz);
-    google::protobuf::io::CodedOutputStream *codedOutput = new google::protobuf::io::CodedOutputStream(&aos);
-    codedOutput->WriteVarint32(req.ByteSize());
-    req.SerializeToCodedStream(codedOutput);
+    google::protobuf::io::CodedOutputStream codedOutput(&aos);
+    codedOutput.WriteVarint32(req.ByteSize());
+    req.SerializeToCodedStream(&codedOutput);
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
       perror("socket creation"); 
@@ -60,9 +63,6 @@ int main() {
     send(sock, packet, siz, 0);
     printf("Message sent\n");
 
-    // valread = read(sock, buffer, 1024);
-    delete[] packet;
-    delete codedOutput;
     // closing the connected socket
     close(client_fd);
     // sleep(2);
